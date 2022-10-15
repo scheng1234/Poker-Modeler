@@ -1,0 +1,160 @@
+---
+title: "Hand Calc Ranking Support"
+author: "Steven"
+date: '2022-10-14'
+output: 
+  html_document:
+    toc: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("Libraries.R")
+
+```
+
+
+# Possible Cards
+
+52 Cards going from 2 - A (13)*  4 suits (4) . 
+
+Lets assign values to each number where higher numbers = betteir
+
+```{r building deck}
+
+Card_Values <- data.frame(cbind(c(2,3,4,5,6,7,8,9,10,"J","Q","K","A"),c(1:13))) %>% 
+  rename(., Value = X2, Number = X1) %>% 
+  mutate(., Value = as.numeric(Value))
+
+Suits<-c("S","H","D","C") #Spade, Hearts, Diamond, Clubs
+
+Deck <-
+  cross2(Card_Values$Number, Suits) %>% 
+  sapply(., rbind) %>%  
+  as.tibble()
+
+DeckC <- map(Deck, 1) %>% unlist
+DeckS <- map(Deck, 2) %>% unlist
+
+Deck <- tibble(Number = DeckC, Suit = DeckS, Card = paste(DeckC, DeckS, sep = ""))  %>% left_join(., Card_Values, by = c("Number" = "Number"))
+attributes(Deck$Number) <- NULL
+attributes(Deck$Suit) <- NULL
+
+rm(DeckC, DeckS)
+
+print(Deck)
+
+```
+
+# Hand Score Evaluation
+
+Calculate the absolute probabilities of each hand. Should follow [wiki](https://en.wikipedia.org/wiki/Poker_probability). For texas holdem - I think we only need to care about the 7 card sample space. I think it'll make sense to just scrape the web for the raw frequencies of each hand. 5 and 7 cards... I don't think we need to worry about 6 card frequency since we always will end at 7 cards anyways. Below is the web scrape which we will only need to run once, and then we can code out by checking if the frequency table exists otherwise run code and just save the data.
+
+```{r wiki probability table scrape}
+
+if(!exists("FiveCardFrequency")){
+  
+wiki = "https://en.wikipedia.org/wiki/Poker_probability"
+
+paths_allowed(paths = wiki)
+
+tables <- read_html(wiki) %>% html_elements("table") %>% html_table() # Might need to find where the table are if they move
+
+FiveCardFrequency <- tables[[1]]
+SevenCardFrequency <- tables[[2]]
+
+FiveCardFrequency[,-7]
+SevenCardFrequency[,-6]
+}
+
+
+```
+
+
+Figuring out a way to have card_values * combo = Total Value (TV). Possible to update the offset term to the minimum of the prior hand.
+
+Let n represent card value and c represent the minimum offset so that each hand falls in the correct place above the hand below. In the following we allow c to be \(c^h\) where h represents the ranking of the hand and c as 13. Possible other ideas are to take the log value or to set c to the minimum of the prior hand max. 
+
+**Top Card:**
+\[\text{TV} = n\]
+\[\min (\text{TV}_\text{Top Card}) = 1\]
+\[\max (\text{TV}_\text{Top Card}) = 13\]
+**One Pair:** 
+\[\text{TV} =  2 \sum n + c\]
+\[\min (\text{TV}_\text{Pair}) = 15\]
+\[\max (\text{TV}_\text{Pair}) = 39\]
+**Two Pair:** Note that A's with 2's beat K's with J's
+\[\text{TV} = 3n_1 +0.25n_2 + c^2 \text{, where } n_1 > n_2\]
+\[\min (\text{TV}_\text{Two Pair}) = 175.25\]
+\[\max (\text{TV}_\text{Two Pair}) = 211\]
+**Trips:**
+\[\text{TV} = 3 \times \sum n + c^3\]
+\[\min (\text{TV}_\text{Trips}) = 2200\]
+\[\max (\text{TV}_\text{Trips}) = 2236\]
+**Straight:**
+\[\text{TV} = \sum_1^5 n_i + c^4 \text{, where n is consecutive} \]
+\[\min (\text{TV}_\text{Straight}) = 28576\]
+\[\max (\text{TV}_\text{Straight}) = 28616\]
+**Flush:** Note that the high card flush wins. 
+\[\text{TV} = \sum_1^5 (n_i \times w_i) + c^4 + \text{Flush Bonus} \text{, where \(w_i = \{x^2,x,x^0,x^{-1},x^{-2} \}\) and \(x \geq 12\) and \(n_{i+1} \geq n_i\)}\]
+\[\min (\text{TV}_\text{Flush}) = 30458.09\]
+\[\max (\text{TV}_\text{Flush}) = 30603.07\]
+**Full House**
+\[\text{TV} = 3 n_1 + 2n_2 + c^4 + \text{Flush Bonus} \text{ where n1 had 3 cards and n2 has 2} \]
+\[\min (\text{TV}_\text{FH}) = \]
+\[\max (\text{TV}_\text{FH}) = \]
+
+**Four of a kind**
+
+**Straight Flush**
+
+**Royal Flush**
+
+**Residuals**
+
+```{r call to TV function}
+
+
+# Royal Flush (5,6,7)
+
+# Straight flush (5,6,7)
+
+
+# Four of a kind (5,6,7)
+
+# Full house (5,6,7)
+
+# Flush (5,6,7)
+
+# Straight (5,6,7)
+
+# Three of a kind (3 - 7)
+
+# Two Pair (2-7)
+
+# One Pair (1-7)
+OnePair <- Card_Values
+OnePair$Value <- Card_Values$Value*13
+
+sort(tapply(1:13, OnePair[,2], FUN = log, base = 13))
+# Top Card (1- 7)
+sort(tapply(1:13, Card_Values[,2], FUN = log, base = 13))
+
+```
+
+# Hand Picker
+A script parse and identify the hand you have
+
+
+```{r Hand Picker}
+
+```
+
+# Bets & Weight Modeler
+
+# Future Possible Hands
+
+# Ultimate Model
+
+# Call, Bet or Fold
+
