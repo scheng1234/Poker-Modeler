@@ -115,38 +115,16 @@ Let n represent card value and c represent the minimum offset so that each hand 
 ```{r call to TV function}
 
 
-# Royal Flush (5,6,7)
-
-# Straight flush (5,6,7)
-
-
-# Four of a kind (5,6,7)
-
-# Full house (5,6,7)
-
-# Flush (5,6,7)
-
-# Straight (5,6,7)
-
-# Three of a kind (3 - 7)
-
-# Two Pair (2-7)
-
-# One Pair (1-7)
-OnePair <- Card_Values
-OnePair$Value <- Card_Values$Value*13
-
-sort(tapply(1:13, OnePair[,2], FUN = log, base = 13))
-# Top Card (1- 7)
-sort(tapply(1:13, Card_Values[,2], FUN = log, base = 13))
 
 ```
 
 # Hand Picker
-A script parse and identify the hand you have
+A script to identify the hand you have
 
 
 ```{r Hand Picker}
+
+source("Hand Select.R")
 
 ```
 

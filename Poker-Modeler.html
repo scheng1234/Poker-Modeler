@@ -507,42 +507,11 @@ has 2} \]</span> <span class="math display">\[\min (\text{TV}_\text{FH})
 <p><strong>Straight Flush</strong></p>
 <p><strong>Royal Flush</strong></p>
 <p><strong>Residuals</strong></p>
-<pre class="r"><code># Royal Flush (5,6,7)
-
-# Straight flush (5,6,7)
-
-
-# Four of a kind (5,6,7)
-
-# Full house (5,6,7)
-
-# Flush (5,6,7)
-
-# Straight (5,6,7)
-
-# Three of a kind (3 - 7)
-
-# Two Pair (2-7)
-
-# One Pair (1-7)
-OnePair &lt;- Card_Values
-OnePair$Value &lt;- Card_Values$Value*13
-
-sort(tapply(1:13, OnePair[,2], FUN = log, base = 13))</code></pre>
-<pre><code>##        13        26        39        52        65        78        91       104 
-## 0.0000000 0.2702382 0.4283173 0.5404763 0.6274736 0.6985555 0.7586544 0.8107145 
-##       117       130       143       156       169 
-## 0.8566347 0.8977117 0.9348704 0.9687936 1.0000000</code></pre>
-<pre class="r"><code># Top Card (1- 7)
-sort(tapply(1:13, Card_Values[,2], FUN = log, base = 13))</code></pre>
-<pre><code>##         1         2         3         4         5         6         7         8 
-## 0.0000000 0.2702382 0.4283173 0.5404763 0.6274736 0.6985555 0.7586544 0.8107145 
-##         9        10        11        12        13 
-## 0.8566347 0.8977117 0.9348704 0.9687936 1.0000000</code></pre>
 </div>
 <div id="hand-picker" class="section level1">
 <h1>Hand Picker</h1>
-<p>A script parse and identify the hand you have</p>
+<p>A script to identify the hand you have</p>
+<pre class="r"><code>source(&quot;Hand Select.R&quot;)</code></pre>
 </div>
 <div id="bets-weight-modeler" class="section level1">
 <h1>Bets &amp; Weight Modeler</h1>
