@@ -100,17 +100,27 @@ Let n represent card value and c represent the minimum offset so that each hand 
 \[\min (\text{TV}_\text{Flush}) = 30458.09\]
 \[\max (\text{TV}_\text{Flush}) = 30603.07\]
 **Full House**
-\[\text{TV} = 3 n_1 + 2n_2 + c^4 + \text{Flush Bonus} \text{ where n1 had 3 cards and n2 has 2} \]
-\[\min (\text{TV}_\text{FH}) = \]
-\[\max (\text{TV}_\text{FH}) = \]
+\[\text{TV} = w_1 \times n_1 + w_2 \times n_2 + c^5  \text{, where \(n_1\) had 3 cards and \(n_2\) has 2 and \(w_1 \geq 13 \times w_2\) }\]
+\[\min (\text{TV}_\text{FH}) = 371308\]
+\[\max (\text{TV}_\text{FH}) = 371474\]
 
 **Four of a kind**
+\[\text{TV} = 4 \times n + c^6\]
+\[\min (\text{TV}_\text{FH}) = 4826817\]
+\[\max (\text{TV}_\text{FH}) = 4826861\]
+
 
 **Straight Flush**
+\[\text{TV} = \sum_1^5 n_i + c^6  + \text{Flush Bonus} \text{, where n is consecutive} \]
+\[\min (\text{TV}_\text{FH}) = 4826824\]
+\[\max (\text{TV}_\text{FH}) = 4826864\]
 
-**Royal Flush**
 
-**Residuals**
+**Royal Flush** The same as straight flush so it doesn't need to be coded.
+
+**Residuals** To account for any kickers, since every hand has a max value of 5 cards, there will be cases where there are no kickers
+\[\text{TV} = 3 n_1 + 2n_2 + c^5 + \text{Flush Bonus} \text{ where n1 had 3 cards and n2 has 2} \]
+
 
 ```{r call to TV function}
 
@@ -126,6 +136,12 @@ A script to identify the hand you have
 
 source("Hand Select.R")
 
+d <- deal1(9)
+Value <- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
+Suit <- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
+
+c(d$plnum1[1:23,1], d$plnum1[1:23,2], d$brdnum1)
+
 ```
 
 # Bets & Weight Modeler
@@ -136,6 +152,9 @@ source("Hand Select.R")
 
 # Call, Bet or Fold
 ```{r}
+```
 
+
+```{r}
 ```
 

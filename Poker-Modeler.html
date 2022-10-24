@@ -498,20 +498,31 @@ wins. <span class="math display">\[\text{TV} = \sum_1^5 (n_i \times w_i)
 \{x^2,x,x^0,x^{-1},x^{-2} \}\) and \(x \geq 12\) and \(n_{i+1} \geq
 n_i\)}\]</span> <span class="math display">\[\min
 (\text{TV}_\text{Flush}) = 30458.09\]</span> <span class="math display">\[\max (\text{TV}_\text{Flush}) = 30603.07\]</span>
-<strong>Full House</strong> <span class="math display">\[\text{TV} = 3
-n_1 + 2n_2 + c^4 + \text{Flush Bonus} \text{ where n1 had 3 cards and n2
-has 2} \]</span> <span class="math display">\[\min (\text{TV}_\text{FH})
-= \]</span> <span class="math display">\[\max (\text{TV}_\text{FH}) =
+<strong>Full House</strong> <span class="math display">\[\text{TV} = w_1
+\times n_1 + w_2 \times n_2 + c^5  \text{, where \(n_1\) had 3 cards and
+\(n_2\) has 2 and \(w_1 \geq 13 \times w_2\) }\]</span> <span class="math display">\[\min (\text{TV}_\text{FH}) = 371308\]</span>
+<span class="math display">\[\max (\text{TV}_\text{FH}) =
+371474\]</span></p>
+<p><strong>Four of a kind</strong> <span class="math display">\[\text{TV} = 4 \times n + c^6\]</span> <span class="math display">\[\min (\text{TV}_\text{FH}) = 4826817\]</span>
+<span class="math display">\[\max (\text{TV}_\text{FH}) =
+4826861\]</span></p>
+<p><strong>Straight Flush</strong> <span class="math display">\[\text{TV} = \sum_1^5 n_i + c^6  + \text{Flush
+Bonus} \text{, where n is consecutive} \]</span> <span class="math display">\[\min (\text{TV}_\text{FH}) = 4826824\]</span>
+<span class="math display">\[\max (\text{TV}_\text{FH}) =
+4826864\]</span></p>
+<p><strong>Royal Flush</strong> The same as straight flush so it doesn’t
+need to be coded.</p>
+<p><strong>Residuals</strong> To account for any kickers, since every
+hand has a max value of 5 cards, there will be cases where there are no
+kickers <span class="math display">\[\text{TV} = 3 n_1 + 2n_2 + c^5 +
+\text{Flush Bonus} \text{ where n1 had 3 cards and n2 has 2}
 \]</span></p>
-<p><strong>Four of a kind</strong></p>
-<p><strong>Straight Flush</strong></p>
-<p><strong>Royal Flush</strong></p>
-<p><strong>Residuals</strong></p>
 </div>
 <div id="hand-picker" class="section level1">
 <h1>Hand Picker</h1>
 <p>A script to identify the hand you have</p>
 <pre class="r"><code>source(&quot;Hand Select.R&quot;)</code></pre>
+<pre><code>## Joining, by = &quot;Card&quot;</code></pre>
 </div>
 <div id="bets-weight-modeler" class="section level1">
 <h1>Bets &amp; Weight Modeler</h1>

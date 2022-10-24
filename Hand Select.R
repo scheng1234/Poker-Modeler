@@ -23,8 +23,8 @@ source("Libraries.R")
 # Created by starting with a 2 card hand and adding cards from flop (3),
 # river(1) and turn (1)
 
-# Hand <- tibble(Card = c("AS", "QS", "8S" , "JS", "10S" , "9S", "8H")) %>% 
-#   left_join(., Deck)
+Hand <- tibble(Card = c("KS", "8S", "AS", "10S", "QS", "JS", "6C")) %>%
+  left_join(., Deck)
 
 
 # Hand Functions ----------------------------------------------------------
@@ -45,7 +45,10 @@ RoyalFlush <- function(Hand){
   temp <- Hand
   
   A <- Flush(temp)
-  B <- Straight(A[[2]])
+  if(nrow(A[[2]])==0){
+    return(list(Pass = FALSE, A[[2]]))
+  }
+  B <- Straight(A[[2]]) #A[[2]] returns null when there is no flush. This fx doesn't work. an if fucntion catches that 
   C <- HighCard(A[[2]])
   
   x <- (A[[1]] && B[[1]]) && C[[2]]$Number == "A"
@@ -61,6 +64,9 @@ StraightFlush <- function(Hand){
 temp <- Hand
 
 A <- Flush(temp)
+if(nrow(A[[2]])==0){
+  return(list(Pass = FALSE, A[[2]]))
+}
 B <- Straight(A[[2]])
 
 x <- A[[1]] && B[[1]]
@@ -90,8 +96,8 @@ test2 <- c(table(temp$Value) == 2)
 
 x <- reduce(test1, `|`) && reduce(test2, `|`) #This statement must be true or it is not FH
 
-temp$A <- test1[match(temp$Value, names(test))]
-temp$B <- test2[match(temp$Value, names(test))]
+temp$A <- test1[match(temp$Value, names(test1))]
+temp$B <- test2[match(temp$Value, names(test2))]
 
 y <- temp[temp$A | temp$B, 1:4]
 
@@ -101,7 +107,7 @@ return(list(Pass = x, y))
 Flush <- function(Hand){
 temp <- Hand
 test <- c(table(temp$Suit) >= 5)
-x <- reduce(test, or) #Must Pass
+x <- reduce(test, `|`) #Must Pass
 
 temp$A <- test[match(temp$Suit, names(test))]
 temp <- temp[order(temp$Value),]
@@ -188,4 +194,28 @@ x <- sum(!is.na(match(Hand$Value, max(Hand$Value)))) == 1 #Must Pass (though que
 y <- temp[!is.na(match(Hand$Value, max(Hand$Value))),] #Return Highcard
 
 return(list(Pass = x,y))
+}
+
+
+# Wrapper Functions --------------------------------------------------------
+
+FindHand <- function(Hand){
+  
+  if(nrow(Hand) == 0){
+      list("Empty Hand")
+    }
+  else{
+    case_when(
+      RoyalFlush(Hand)[[1]] ~ list("Royal Flush", RoyalFlush(Hand)[[2]]),
+      StraightFlush(Hand)[[1]] ~ list("Straight Flush", StraightFlush(Hand)[[2]]),
+      Fours(Hand)[[1]] ~ list("Four of a Kind", Fours(Hand)[[2]]),
+      FullHouse(Hand)[[1]] ~ list("Full House",  FullHouse(Hand)[[2]]),
+      Flush(Hand)[[1]] ~ list("Flush", Flush(Hand)[[2]]),
+      Straight(Hand)[[1]] ~ list("Straight",  Straight(Hand)[[2]]),
+      Trips(Hand)[[1]] ~ list("Three of a Kind", Trips(Hand)[[2]]),
+      TwoPair(Hand)[[1]] ~ list("Two Pair", TwoPair(Hand)[[2]]),
+      OnePair(Hand)[[1]] ~ list("One Pair", OnePair(Hand)[[2]]),
+      HighCard(Hand)[[1]] ~ list("High Card" , HighCard(Hand)[[2]])
+    )
+  }
 }
