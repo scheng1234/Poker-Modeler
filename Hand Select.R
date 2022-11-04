@@ -23,8 +23,8 @@ source("Libraries.R")
 # Created by starting with a 2 card hand and adding cards from flop (3),
 # river(1) and turn (1)
 
-Hand <- tibble(Card = c("KS", "8S", "AS", "10S", "QS", "JS", "6C")) %>%
-  left_join(., Deck)
+# Hand <- tibble(Card = c("KS", "8S", "AS", "10S", "QS", "JS", "6C")) %>%
+#   left_join(., Deck)
 
 
 # Hand Functions ----------------------------------------------------------
@@ -129,7 +129,8 @@ if("A" %in% temp$Number){
   temp <- add_row(temp, slice_max(temp, Value)[,1:3], Value = 0)
   }
 
-temp <- temp[order(temp$Value),]
+temp <- temp[order(temp$Value),] # ordering cards by value
+temp <- temp[!duplicated(temp$Value),] # removing any duplicate values from hand.
 
 test <- rle(temp$Value - lag(temp$Value)) # counts run lengths
 x <- reduce(test$lengths >= 4 & test$values == 1,`|`) #grabbing values of 1 (difference between n_2 and n_1) & 4 or more means that we have a straight

@@ -9,7 +9,7 @@
 # ===========================
 
 source("Libraries.R")
-
+source("Hand Select.R")
 
 # Hand Data Input ---------------------------------------------------------
 
@@ -21,6 +21,46 @@ source("Libraries.R")
 # {Number, Suit, Card, Value}
 # {5, S, 5S, 4}
 
-Hand <- tibble(Card = c("AS", "QS", "8S" , "JS", "10S" , "9S", "8H")) %>%
+Hand <- tibble(Card = c("JS", "AC", "10D" , "10S", "10H" , "7S", "8S")) %>%
   left_join(., Deck)
+
+
+# Constants ---------------------------------------------------------------
+
+
+hand_rank <- 13
+flush_bonus <- 1000
+
+TotalValue <- function(Hand){
+  temp <- Hand
+  a <- FindHand(temp)
+  b <- a[[2]]
+}
+
+temp <- Hand
+a <- FindHand(temp)
+
+
+if( a[[1]] == "Royal Flush" || a[[1]]== "Straight Flush"){
+  sum(a[[2]]$Value) + hand_rank^6 + flush_bonus
+}else if(a[[1]] == "Four of a Kind"){
+  sum(a[[2]]$Value) + hand_rank^6
+} else if (a[[1]] == "Full House") {
+  sum(a[[2]]$Value[a[[2]]$Value == names(table(a[[2]]$Value)[table(a[[2]]$Value) ==
+                                                               2])],
+      13 * a[[2]]$Value[a[[2]]$Value == names(table(a[[2]]$Value)[table(a[[2]]$Value) ==
+                                                                    3])]) + hand_rank^5
+}else if(a[[1]] == "Flush"){
+  sum(a[[2]]$Value * c(13^2,13,1,13^-1,13^-2)) + hand_rank^4 + flush_bonus
+}else if(a[[1]] == "Straight"){
+  sum(a[[2]]$Value) + hand_rank^4
+}else if(a[[1]] == "Three of a Kind"){
+  sum(a[[2]]$Value) + hand_rank^3
+}else if(a[[1]] == "Two Pair"){  
+  "x"
+}else if(a[[1]] == "One Pair"){
+  "y"
+}else{
+  "z"
+}
 

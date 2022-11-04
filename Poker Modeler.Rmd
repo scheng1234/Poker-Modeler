@@ -31,7 +31,7 @@ Suits<-c("S","H","D","C") #Spade, Hearts, Diamond, Clubs
 Deck <-
   cross2(Card_Values$Number, Suits) %>% 
   sapply(., rbind) %>%  
-  as.tibble()
+  as_tibble()
 
 DeckC <- map(Deck, 1) %>% unlist
 DeckS <- map(Deck, 2) %>% unlist
@@ -69,11 +69,27 @@ SevenCardFrequency[,-6]
 
 
 ```
+# Hand Picker
+A script to identify the hand you have. We'll rely on the Holdem package for dealing, simulation, and other aspects of texas holdem. We'll need to convert between the holdem package and ours
 
+
+```{r Hand Picker}
+
+source("Hand Select.R")
+
+d <- deal1(9)
+Value <- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
+Suit <- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
+
+ c(d$plnum1[1:nrow(d$plnum1),1], d$plnum1[1:nrow(d$plnum1),2], d$brdnum1)
+
+```
 
 Figuring out a way to have card_values * combo = Total Value (TV). Possible to update the offset term to the minimum of the prior hand.
 
 Let n represent card value and c represent the minimum offset so that each hand falls in the correct place above the hand below. In the following we allow c to be \(c^h\) where h represents the ranking of the hand and c as 13. Possible other ideas are to take the log value or to set c to the minimum of the prior hand max. 
+
+Will have to compare with the handeval function from the Holdem package.
 
 **Top Card:**
 \[\text{TV} = n\]
@@ -119,36 +135,23 @@ Let n represent card value and c represent the minimum offset so that each hand 
 **Royal Flush** The same as straight flush so it doesn't need to be coded.
 
 **Residuals** To account for any kickers, since every hand has a max value of 5 cards, there will be cases where there are no kickers
-\[\text{TV} = 3 n_1 + 2n_2 + c^5 + \text{Flush Bonus} \text{ where n1 had 3 cards and n2 has 2} \]
+
 
 
 ```{r call to TV function}
 
-
-
-```
-
-# Hand Picker
-A script to identify the hand you have
-
-
-```{r Hand Picker}
-
-source("Hand Select.R")
-
-d <- deal1(9)
-Value <- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
-Suit <- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
-
-c(d$plnum1[1:23,1], d$plnum1[1:23,2], d$brdnum1)
+source("Total Hand value.R")
 
 ```
-
-# Bets & Weight Modeler
 
 # Future Possible Hands
 
+
+# Bets & Weight Modeler
+
+
 # Ultimate Model
+
 
 # Call, Bet or Fold
 ```{r}

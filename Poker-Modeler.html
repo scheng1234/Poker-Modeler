@@ -376,9 +376,9 @@ Cards</a></li>
 <li><a href="#hand-score-evaluation" id="toc-hand-score-evaluation">Hand
 Score Evaluation</a></li>
 <li><a href="#hand-picker" id="toc-hand-picker">Hand Picker</a></li>
+<li><a href="#future-possible-hands" id="toc-future-possible-hands">Future Possible Hands</a></li>
 <li><a href="#bets-weight-modeler" id="toc-bets-weight-modeler">Bets
 &amp; Weight Modeler</a></li>
-<li><a href="#future-possible-hands" id="toc-future-possible-hands">Future Possible Hands</a></li>
 <li><a href="#ultimate-model" id="toc-ultimate-model">Ultimate
 Model</a></li>
 <li><a href="#call-bet-or-fold" id="toc-call-bet-or-fold">Call, Bet or
@@ -399,10 +399,7 @@ Suits&lt;-c(&quot;S&quot;,&quot;H&quot;,&quot;D&quot;,&quot;C&quot;) #Spade, Hea
 Deck &lt;-
   cross2(Card_Values$Number, Suits) %&gt;% 
   sapply(., rbind) %&gt;%  
-  as.tibble()</code></pre>
-<pre><code>## Warning: `as.tibble()` was deprecated in tibble 2.0.0.
-## Please use `as_tibble()` instead.
-## The signature and semantics have changed, see `?as_tibble`.</code></pre>
+  as_tibble()</code></pre>
 <pre><code>## Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0.
 ## Using compatibility `.name_repair`.</code></pre>
 <pre class="r"><code>DeckC &lt;- map(Deck, 1) %&gt;% unlist
@@ -470,6 +467,20 @@ SevenCardFrequency[,-6]
 ##  9 One pair                     58,627,800 43.8%       82.6%      1.28 : 1      
 ## 10 No pair / High card          23,294,460 17.4%       100%       4.74 : 1      
 ## 11 Total                        133,784,5~ 100%        ---        0 : 1</code></pre>
+</div>
+<div id="hand-picker" class="section level1">
+<h1>Hand Picker</h1>
+<p>A script to identify the hand you have. We’ll rely on the Holdem
+package for dealing, simulation, and other aspects of texas holdem.
+We’ll need to convert between the holdem package and ours</p>
+<pre class="r"><code>source(&quot;Hand Select.R&quot;)</code></pre>
+<pre><code>## Joining, by = &quot;Card&quot;</code></pre>
+<pre class="r"><code>d &lt;- deal1(9)
+Value &lt;- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
+Suit &lt;- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
+
+ c(d$plnum1[1:nrow(d$plnum1),1], d$plnum1[1:nrow(d$plnum1),2], d$brdnum1)</code></pre>
+<pre><code>##  [1] 10  8  7 13 13  6 11  6 14  3  3  4  5 13  4 11  2  7 14  8  4 12  6</code></pre>
 <p>Figuring out a way to have card_values * combo = Total Value (TV).
 Possible to update the offset term to the minimum of the prior hand.</p>
 <p>Let n represent card value and c represent the minimum offset so that
@@ -478,6 +489,8 @@ following we allow c to be <span class="math inline">\(c^h\)</span>
 where h represents the ranking of the hand and c as 13. Possible other
 ideas are to take the log value or to set c to the minimum of the prior
 hand max.</p>
+<p>Will have to compare with the handeval function from the Holdem
+package.</p>
 <p><strong>Top Card:</strong> <span class="math display">\[\text{TV} =
 n\]</span> <span class="math display">\[\min (\text{TV}_\text{Top Card})
 = 1\]</span> <span class="math display">\[\max (\text{TV}_\text{Top
@@ -514,21 +527,15 @@ Bonus} \text{, where n is consecutive} \]</span> <span class="math display">\[\m
 need to be coded.</p>
 <p><strong>Residuals</strong> To account for any kickers, since every
 hand has a max value of 5 cards, there will be cases where there are no
-kickers <span class="math display">\[\text{TV} = 3 n_1 + 2n_2 + c^5 +
-\text{Flush Bonus} \text{ where n1 had 3 cards and n2 has 2}
-\]</span></p>
-</div>
-<div id="hand-picker" class="section level1">
-<h1>Hand Picker</h1>
-<p>A script to identify the hand you have</p>
-<pre class="r"><code>source(&quot;Hand Select.R&quot;)</code></pre>
+kickers</p>
+<pre class="r"><code>source(&quot;Total Hand value.R&quot;)</code></pre>
 <pre><code>## Joining, by = &quot;Card&quot;</code></pre>
-</div>
-<div id="bets-weight-modeler" class="section level1">
-<h1>Bets &amp; Weight Modeler</h1>
 </div>
 <div id="future-possible-hands" class="section level1">
 <h1>Future Possible Hands</h1>
+</div>
+<div id="bets-weight-modeler" class="section level1">
+<h1>Bets &amp; Weight Modeler</h1>
 </div>
 <div id="ultimate-model" class="section level1">
 <h1>Ultimate Model</h1>
