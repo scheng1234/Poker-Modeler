@@ -5,6 +5,9 @@ date: '2022-10-14'
 output: 
   html_document:
     toc: TRUE
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -13,10 +16,9 @@ source("Libraries.R")
 
 ```
 
-
 # Possible Cards
 
-52 Cards going from 2 - A (13)*  4 suits (4) . 
+52 Cards going from 2 - A (13)\* 4 suits (4) .
 
 Lets assign values to each number where higher numbers = betteir
 
@@ -48,7 +50,15 @@ print(Deck)
 
 # Hand Score Evaluation
 
-Calculate the absolute probabilities of each hand. Should follow [wiki](https://en.wikipedia.org/wiki/Poker_probability). For texas holdem - I think we only need to care about the 7 card sample space. I think it'll make sense to just scrape the web for the raw frequencies of each hand. 5 and 7 cards... I don't think we need to worry about 6 card frequency since we always will end at 7 cards anyways. Below is the web scrape which we will only need to run once, and then we can code out by checking if the frequency table exists otherwise run code and just save the data.
+Calculate the absolute probabilities of each hand. Should follow
+[wiki](https://en.wikipedia.org/wiki/Poker_probability). For texas
+holdem - I think we only need to care about the 7 card sample space. I
+think it'll make sense to just scrape the web for the raw frequencies of
+each hand. 5 and 7 cards... I don't think we need to worry about 6 card
+frequency since we always will end at 7 cards anyways. Below is the web
+scrape which we will only need to run once, and then we can code out by
+checking if the frequency table exists otherwise run code and just save
+the data.
 
 ```{r wiki probability table scrape}
 
@@ -69,9 +79,12 @@ SevenCardFrequency[,-6]
 
 
 ```
-# Hand Picker
-A script to identify the hand you have. We'll rely on the Holdem package for dealing, simulation, and other aspects of texas holdem. We'll need to convert between the holdem package and ours
 
+# Hand Picker
+
+A script to identify the hand you have. We'll rely on the Holdem package
+for dealing, simulation, and other aspects of texas holdem. We'll need
+to convert between the holdem package and ours
 
 ```{r Hand Picker}
 
@@ -85,58 +98,53 @@ Suit <- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
 
 ```
 
-Figuring out a way to have card_values * combo = Total Value (TV). Possible to update the offset term to the minimum of the prior hand.
+Figuring out a way to have card_values \* combo = Total Value (TV).
+Possible to update the offset term to the minimum of the prior hand.
 
-Let n represent card value and c represent the minimum offset so that each hand falls in the correct place above the hand below. In the following we allow c to be \(c^h\) where h represents the ranking of the hand and c as 13. Possible other ideas are to take the log value or to set c to the minimum of the prior hand max. 
+Let n represent card value and c represent the minimum offset so that
+each hand falls in the correct place above the hand below. In the
+following we allow c to be $c^h$ where h represents the ranking of the
+hand and c as 13. Possible other ideas are to take the log value or to
+set c to the minimum of the prior hand max.
 
 Will have to compare with the handeval function from the Holdem package.
 
-**Top Card:**
-\[\text{TV} = n\]
-\[\min (\text{TV}_\text{Top Card}) = 1\]
-\[\max (\text{TV}_\text{Top Card}) = 13\]
-**One Pair:** 
-\[\text{TV} =  2 \sum n + c\]
-\[\min (\text{TV}_\text{Pair}) = 15\]
-\[\max (\text{TV}_\text{Pair}) = 39\]
-**Two Pair:** Note that A's with 2's beat K's with J's
-\[\text{TV} = 3n_1 +0.25n_2 + c^2 \text{, where } n_1 > n_2\]
-\[\min (\text{TV}_\text{Two Pair}) = 175.25\]
-\[\max (\text{TV}_\text{Two Pair}) = 211\]
-**Trips:**
-\[\text{TV} = 3 \times \sum n + c^3\]
-\[\min (\text{TV}_\text{Trips}) = 2200\]
-\[\max (\text{TV}_\text{Trips}) = 2236\]
-**Straight:**
-\[\text{TV} = \sum_1^5 n_i + c^4 \text{, where n is consecutive} \]
-\[\min (\text{TV}_\text{Straight}) = 28576\]
-\[\max (\text{TV}_\text{Straight}) = 28616\]
-**Flush:** Note that the high card flush wins. 
-\[\text{TV} = \sum_1^5 (n_i \times w_i) + c^4 + \text{Flush Bonus} \text{, where \(w_i = \{x^2,x,x^0,x^{-1},x^{-2} \}\) and \(x \geq 12\) and \(n_{i+1} \geq n_i\)}\]
-\[\min (\text{TV}_\text{Flush}) = 30458.09\]
-\[\max (\text{TV}_\text{Flush}) = 30603.07\]
-**Full House**
-\[\text{TV} = w_1 \times n_1 + w_2 \times n_2 + c^5  \text{, where \(n_1\) had 3 cards and \(n_2\) has 2 and \(w_1 \geq 13 \times w_2\) }\]
-\[\min (\text{TV}_\text{FH}) = 371308\]
-\[\max (\text{TV}_\text{FH}) = 371474\]
+**Top Card:** $$\text{TV} = n$$ $$\min (\text{TV}_\text{Top Card}) = 1$$
+$$\max (\text{TV}_\text{Top Card}) = 13$$ **One Pair:**
+$$\text{TV} =  2 \sum n + c$$ $$\min (\text{TV}_\text{Pair}) = 15$$
+$$\max (\text{TV}_\text{Pair}) = 39$$ **Two Pair:** Note that A's with
+2's beat K's with J's
+$$\text{TV} = 3n_1 +0.25n_2 + c^2 \text{, where } n_1 > n_2$$
+$$\min (\text{TV}_\text{Two Pair}) = 175.25$$
+$$\max (\text{TV}_\text{Two Pair}) = 211$$ **Trips:**
+$$\text{TV} = 3 \times \sum n + c^3$$
+$$\min (\text{TV}_\text{Trips}) = 2200$$
+$$\max (\text{TV}_\text{Trips}) = 2236$$ **Straight:**
+$$\text{TV} = \sum_1^5 n_i + c^4 \text{, where n is consecutive} $$
+$$\min (\text{TV}_\text{Straight}) = 28576$$
+$$\max (\text{TV}_\text{Straight}) = 28616$$ **Flush:** Note that the
+high card flush wins.
+$$\text{TV} = \sum_1^5 (n_i \times w_i) + c^4 + \text{Flush Bonus} \text{, where \(w_i = \{x^2,x,x^0,x^{-1},x^{-2} \}\) and \(x \geq 12\) and \(n_{i+1} \geq n_i\)}$$
+$$\min (\text{TV}_\text{Flush}) = 30458.09$$
+$$\max (\text{TV}_\text{Flush}) = 30603.07$$ **Full House**
+$$\text{TV} = w_1 \times n_1 + w_2 \times n_2 + c^5  \text{, where \(n_1\) had 3 cards and \(n_2\) has 2 and \(w_1 \geq 13 \times w_2\) }$$
+$$\min (\text{TV}_\text{FH}) = 371308$$
+$$\max (\text{TV}_\text{FH}) = 371474$$
 
-**Four of a kind**
-\[\text{TV} = 4 \times n + c^6\]
-\[\min (\text{TV}_\text{FH}) = 4826817\]
-\[\max (\text{TV}_\text{FH}) = 4826861\]
-
+**Four of a kind** $$\text{TV} = 4 \times n + c^6$$
+$$\min (\text{TV}_\text{FH}) = 4826817$$
+$$\max (\text{TV}_\text{FH}) = 4826861$$
 
 **Straight Flush**
-\[\text{TV} = \sum_1^5 n_i + c^6  + \text{Flush Bonus} \text{, where n is consecutive} \]
-\[\min (\text{TV}_\text{FH}) = 4826824\]
-\[\max (\text{TV}_\text{FH}) = 4826864\]
+$$\text{TV} = \sum_1^5 n_i + c^6  + \text{Flush Bonus} \text{, where n is consecutive} $$
+$$\min (\text{TV}_\text{FH}) = 4826824$$
+$$\max (\text{TV}_\text{FH}) = 4826864$$
 
+**Royal Flush** The same as straight flush so it doesn't need to be
+coded.
 
-**Royal Flush** The same as straight flush so it doesn't need to be coded.
-
-**Residuals** To account for any kickers, since every hand has a max value of 5 cards, there will be cases where there are no kickers
-
-
+**Residuals** To account for any kickers, since every hand has a max
+value of 5 cards, there will be cases where there are no kickers
 
 ```{r call to TV function}
 
@@ -146,18 +154,14 @@ source("Total Hand value.R")
 
 # Future Possible Hands
 
-
 # Bets & Weight Modeler
-
 
 # Ultimate Model
 
-
 # Call, Bet or Fold
-```{r}
-```
-
 
 ```{r}
 ```
 
+```{r}
+```

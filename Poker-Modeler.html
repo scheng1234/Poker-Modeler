@@ -473,14 +473,14 @@ SevenCardFrequency[,-6]
 <p>A script to identify the hand you have. We’ll rely on the Holdem
 package for dealing, simulation, and other aspects of texas holdem.
 We’ll need to convert between the holdem package and ours</p>
-<pre class="r"><code>source(&quot;Hand Select.R&quot;)</code></pre>
-<pre><code>## Joining, by = &quot;Card&quot;</code></pre>
-<pre class="r"><code>d &lt;- deal1(9)
+<pre class="r"><code>source(&quot;Hand Select.R&quot;)
+
+d &lt;- deal1(9)
 Value &lt;- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
 Suit &lt;- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
 
  c(d$plnum1[1:nrow(d$plnum1),1], d$plnum1[1:nrow(d$plnum1),2], d$brdnum1)</code></pre>
-<pre><code>##  [1] 10  8  7 13 13  6 11  6 14  3  3  4  5 13  4 11  2  7 14  8  4 12  6</code></pre>
+<pre><code>##  [1] 12 12 10  5 14 11 14  9  6  5  6 10  2 12  7  3  4  2  3 13 13  7  5</code></pre>
 <p>Figuring out a way to have card_values * combo = Total Value (TV).
 Possible to update the offset term to the minimum of the prior hand.</p>
 <p>Let n represent card value and c represent the minimum offset so that
