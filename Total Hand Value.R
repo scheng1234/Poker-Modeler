@@ -20,9 +20,9 @@ source("Hand Select.R")
 # Data Format:
 # {Number, Suit, Card, Value}
 # {5, S, 5S, 4}
-
-Hand <- tibble(Card = c("JS", "10C", "10D" , "6S", "AH" , "7S", "8S")) %>%
-  left_join(., Deck)
+# 
+# Hand <- tibble(Card = c("JS", "10C", "10D" , "6S", "AH" , "7S", "8S")) %>%
+#   left_join(., Deck)
 
 
 # Constants ---------------------------------------------------------------
@@ -40,7 +40,7 @@ TotalValue <- function(Hand){
   temp <- Hand
   a <- FindHand(temp)
   
-  if( a[[1]] == "Royal Flush" || a[[1]]== "Straight Flush"){
+HandVal <-  if( a[[1]] == "Royal Flush" || a[[1]]== "Straight Flush"){
     sum(a[[2]]$Value) + hand_rank^6 + flush_bonus
   }else if(a[[1]] == "Four of a Kind"){
     sum(a[[2]]$Value) + hand_rank^6
@@ -63,10 +63,16 @@ TotalValue <- function(Hand){
     a[[2]]$Value
   }
   
-}
 
-temp <- Hand
-a <- FindHand(temp)
+b <- anti_join(temp, a[[2]]) %>% arrange(., desc(Value))
+b <- b[1:(5-nrow(a[[2]])), ]
+
+Residuals <- sum(b$Value)
+ab <- rbind(a[[2]],b)
+ 
+  return(list(HandVal + Residuals, ab))
+  
+}
 
 
 

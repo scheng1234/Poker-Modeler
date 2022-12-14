@@ -13,38 +13,84 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source("Libraries.R")
+source("Hand Select.R")
+source("Total Hand value.R")
 
+if(!dir.exists("./Backup")){
+  dir.create("./Backup")
+}
 ```
 
 # Possible Cards
 
 52 Cards going from 2 - A (13)\* 4 suits (4) .
 
-Lets assign values to each number where higher numbers = betteir
+Lets assign values to each number where higher numbers = better
 
 ```{r building deck}
+if(file.exists("./Backup/Deck")){
+  load("./Backup/Deck")
+}else{
 
+BuildDeck <- function(l1,l2,l3){
+  
+  
+}
 Card_Values <- data.frame(cbind(c(2,3,4,5,6,7,8,9,10,"J","Q","K","A"),c(1:13))) %>% 
   rename(., Value = X2, Number = X1) %>% 
   mutate(., Value = as.numeric(Value))
 
 Suits<-c("S","H","D","C") #Spade, Hearts, Diamond, Clubs
+levels(Suits) <- c(1,2,3,4)
 
-Deck <-
-  cross2(Card_Values$Number, Suits) %>% 
-  sapply(., rbind) %>%  
-  as_tibble()
+Deck <- expand_grid(Card_Values, Suits) %>% 
+  mutate(., Card = paste(Number, Suits, sep=""))
 
-DeckC <- map(Deck, 1) %>% unlist
-DeckS <- map(Deck, 2) %>% unlist
-
-Deck <- tibble(Number = DeckC, Suit = DeckS, Card = paste(DeckC, DeckS, sep = ""))  %>% left_join(., Card_Values, by = c("Number" = "Number"))
-attributes(Deck$Number) <- NULL
-attributes(Deck$Suit) <- NULL
-
-rm(DeckC, DeckS)
+# Deck <-
+#   cross_df(Card_Values$Number, Suits) %>% 
+#   sapply(., rbind) %>%  
+#   as_tibble()
+# 
+# DeckC <- map(Deck, 1) %>% unlist
+# DeckS <- map(Deck, 2) %>% unlist
+# 
+# Deck <- tibble(Number = DeckC, Suit = DeckS, Card = paste(DeckC, DeckS, sep = ""))  %>% left_join(., Card_Values, by = c("Number" = "Number"))
+# attributes(Deck$Number) <- NULL
+# attributes(Deck$Suit) <- NULL
+# 
+# rm(DeckC, DeckS)
 
 print(Deck)
+
+save(Deck, file = "./Backup/Deck")
+
+}
+
+```
+
+# Hand Picker
+
+The Hand Select.R script identifies the hand you have. We'll rely on the Holdem package
+for dealing, simulation, and other aspects of texas holdem. We'll need
+to convert between the holdem package and modeler notation. 
+
+```{r Deal}
+#We need to initialize "Deck" element before this function can work. Or should we have Deck be an existing object that is created in the function?
+
+Hand <- function(x){
+  Hand <- tibble(Card = c("JS", "10C", "10D" , "6S", "AH" , "7S", "8S")) %>%
+  left_join(., Deck)
+}
+
+Hand <- tibble(Card = c("JS", "10C", "10D" , "6S", "AH" , "7S", "8S")) %>%
+  left_join(., Deck)
+
+d <- deal1(9)
+Value <- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
+Suit <- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
+
+# c(d$plnum1[1:nrow(d$plnum1),1], d$plnum1[1:nrow(d$plnum1),2], d$brdnum1)
+ 
 
 ```
 
@@ -80,23 +126,6 @@ SevenCardFrequency[,-6]
 
 ```
 
-# Hand Picker
-
-A script to identify the hand you have. We'll rely on the Holdem package
-for dealing, simulation, and other aspects of texas holdem. We'll need
-to convert between the holdem package and ours
-
-```{r Hand Picker}
-
-source("Hand Select.R")
-
-d <- deal1(9)
-Value <- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
-Suit <- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
-
- c(d$plnum1[1:nrow(d$plnum1),1], d$plnum1[1:nrow(d$plnum1),2], d$brdnum1)
-
-```
 
 Figuring out a way to have card_values \* combo = Total Value (TV).
 Possible to update the offset term to the minimum of the prior hand.
@@ -148,7 +177,16 @@ value of 5 cards, there will be cases where there are no kickers
 
 ```{r call to TV function}
 
-source("Total Hand value.R")
+
+
+# Test Hands
+
+# High Card
+
+
+# Pair
+
+FindHand(Hand)
 
 ```
 
@@ -160,8 +198,6 @@ source("Total Hand value.R")
 
 # Call, Bet or Fold
 
-```{r}
-```
-
-```{r}
-```
+Bet when there is a high probability to win
+Call when there is a neutral probability to win
+Fold when there is a low probability to win.
