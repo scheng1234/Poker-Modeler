@@ -9,14 +9,28 @@
 #
 # ===========================
 
-# {Set of 52}
-# {Draw 2, n players}
-# {Deck = Set of 52 elements of 2*n (known only)}
-# We probably won't know what cards were taken. We'll have to "Math it out" for possible cards
-#
-# {n1, n2, n_x}
-# { fill n_x with best cards}
-# { n_x exist in Deck?}
-# 
+source("Libraries.R")
+source("Hand Select.R")
+source("Total Hand Value.R")
+
+set.seed(18610)
+Hand <- DealFromHoldem()[[1]]
 
 
+# Maximal Hand Value ------------------------------------------------------
+
+# We will need to determine whether we are on the "pre-flop, flop, or turn"
+
+
+# Pre Flop
+Hand[1:2,]
+
+# Flop
+Hand[1:5,]
+
+# Turn
+Hand[1:6,]
+
+# Expected Hand value -----------------------------------------------------
+
+# We will want to calculate the expected hand strength given "flop, river, or turn"

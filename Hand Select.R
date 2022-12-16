@@ -126,7 +126,7 @@ Straight <- function(Hand){
 
 temp <- Hand
 if("A" %in% temp$Number){
-  temp <- add_row(temp, slice_max(temp, Value)[,1:3], Value = 0)
+  temp <- add_row(temp, slice_max(temp, Value)[,c("Card", "Number", "Suit")], Value = 0)
   }
 
 temp <- temp[order(temp$Value),] # ordering cards by value

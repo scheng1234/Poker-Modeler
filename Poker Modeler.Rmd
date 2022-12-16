@@ -32,39 +32,38 @@ if(file.exists("./Backup/Deck")){
   load("./Backup/Deck")
 }else{
 
+l1 = c(2,3,4,5,6,7,8,9,10,"J","Q","K","A") #Number
+l2 = c(1:13) #Value
+l3 = c("S", "H", "D", "C") #Spade, Hearts, Diamond, Clubs
+  
 BuildDeck <- function(l1,l2,l3){
   
+  #This function allows us to build any Deck when supplied:
+  #l1: a list of numbers or cards
+  #l2: a list of values that correspond to numbres, length of l1, and l2 must be the same
+  #l3: a list of Suits or something.
+  
+  Card_Values <- data.frame(cbind(l1,l2)) %>% 
+  rename(., Value = l2, Number = l1) %>% 
+  mutate(., Value = as.numeric(Value))
+  
+Suit<-l3 
+levels(Suit) <- c(1:length(l3))
+
+Deck <- expand_grid(Card_Values, Suit) %>% 
+  mutate(., Card = paste(Number, Suit, sep=""))
+
+return(Deck)
   
 }
-Card_Values <- data.frame(cbind(c(2,3,4,5,6,7,8,9,10,"J","Q","K","A"),c(1:13))) %>% 
-  rename(., Value = X2, Number = X1) %>% 
-  mutate(., Value = as.numeric(Value))
 
-Suits<-c("S","H","D","C") #Spade, Hearts, Diamond, Clubs
-levels(Suits) <- c(1,2,3,4)
-
-Deck <- expand_grid(Card_Values, Suits) %>% 
-  mutate(., Card = paste(Number, Suits, sep=""))
-
-# Deck <-
-#   cross_df(Card_Values$Number, Suits) %>% 
-#   sapply(., rbind) %>%  
-#   as_tibble()
-# 
-# DeckC <- map(Deck, 1) %>% unlist
-# DeckS <- map(Deck, 2) %>% unlist
-# 
-# Deck <- tibble(Number = DeckC, Suit = DeckS, Card = paste(DeckC, DeckS, sep = ""))  %>% left_join(., Card_Values, by = c("Number" = "Number"))
-# attributes(Deck$Number) <- NULL
-# attributes(Deck$Suit) <- NULL
-# 
-# rm(DeckC, DeckS)
-
-print(Deck)
+Deck <- BuildDeck(l1,l2,l3)
 
 save(Deck, file = "./Backup/Deck")
 
 }
+
+print(Deck)
 
 ```
 
@@ -72,25 +71,40 @@ save(Deck, file = "./Backup/Deck")
 
 The Hand Select.R script identifies the hand you have. We'll rely on the Holdem package
 for dealing, simulation, and other aspects of texas holdem. We'll need
-to convert between the holdem package and modeler notation. 
+to convert between the holdem package and modeler notation. Maybe for a future update we generate the hands ourselves and remove dependancies on the holdem package.
 
 ```{r Deal}
 #We need to initialize "Deck" element before this function can work. Or should we have Deck be an existing object that is created in the function?
 
-Hand <- function(x){
-  Hand <- tibble(Card = c("JS", "10C", "10D" , "6S", "AH" , "7S", "8S")) %>%
-  left_join(., Deck)
-}
+# Hand <- function(x){
+#   Hand <- tibble(Card = c("JS", "10C", "10D" , "6S", "AH" , "7S", "8S")) %>%
+#   left_join(., Deck)
+# }
 
 Hand <- tibble(Card = c("JS", "10C", "10D" , "6S", "AH" , "7S", "8S")) %>%
   left_join(., Deck)
 
-d <- deal1(9)
-Value <- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
-Suit <- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
-
-# c(d$plnum1[1:nrow(d$plnum1),1], d$plnum1[1:nrow(d$plnum1),2], d$brdnum1)
- 
+DealFromHoldem <- function(numpl = 1){
+  # Deal to n (numpl) players. Max is 23
+  
+  Phands <- list()
+  d <- deal1(numpl)
+  
+  # Converting to Values and Suit
+  for(i in 1:numpl){
+  Value <- c(d$plnum1[i,1], d$plnum1[i,2], d$brdnum1)-1
+  Suit <- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %>% Deck$Suit[.]
+  
+  x <- as_tibble(cbind(Value, Suit)) %>% 
+    mutate(., Value = as.double(Value)) %>% 
+    left_join(., Deck, by = c("Value", "Suit"))
+  
+  Phands <- append(Phands, list(x))
+  }
+  
+  # returning Hands of each player sorted by list.
+  return(Phands)
+}
 
 ```
 
@@ -184,13 +198,20 @@ value of 5 cards, there will be cases where there are no kickers
 # High Card
 
 
-# Pair
 
 FindHand(Hand)
 
 ```
 
-# Future Possible Hands
+
+# Future Possible Hands (Expecation)
+
+```{r}
+
+source("Hand Predict.R")
+
+```
+
 
 # Bets & Weight Modeler
 

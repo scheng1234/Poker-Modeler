@@ -369,7 +369,8 @@ Cards</a></li>
 <li><a href="#hand-picker" id="toc-hand-picker">Hand Picker</a></li>
 <li><a href="#hand-score-evaluation" id="toc-hand-score-evaluation">Hand
 Score Evaluation</a></li>
-<li><a href="#future-possible-hands" id="toc-future-possible-hands">Future Possible Hands</a></li>
+<li><a href="#future-possible-hands-expecation" id="toc-future-possible-hands-expecation">Future Possible Hands
+(Expecation)</a></li>
 <li><a href="#bets-weight-modeler" id="toc-bets-weight-modeler">Bets
 &amp; Weight Modeler</a></li>
 <li><a href="#ultimate-model" id="toc-ultimate-model">Ultimate
@@ -387,61 +388,91 @@ Fold</a></li>
   load(&quot;./Backup/Deck&quot;)
 }else{
 
+l1 = c(2,3,4,5,6,7,8,9,10,&quot;J&quot;,&quot;Q&quot;,&quot;K&quot;,&quot;A&quot;) #Number
+l2 = c(1:13) #Value
+l3 = c(&quot;S&quot;, &quot;H&quot;, &quot;D&quot;, &quot;C&quot;) #Spade, Hearts, Diamond, Clubs
+  
 BuildDeck &lt;- function(l1,l2,l3){
   
+  #This function allows us to build any Deck when supplied:
+  #l1: a list of numbers or cards
+  #l2: a list of values that correspond to numbres, length of l1, and l2 must be the same
+  #l3: a list of Suits or something.
+  
+  Card_Values &lt;- data.frame(cbind(l1,l2)) %&gt;% 
+  rename(., Value = l2, Number = l1) %&gt;% 
+  mutate(., Value = as.numeric(Value))
+  
+Suit&lt;-l3 
+levels(Suit) &lt;- c(1:length(l3))
+
+Deck &lt;- expand_grid(Card_Values, Suit) %&gt;% 
+  mutate(., Card = paste(Number, Suit, sep=&quot;&quot;))
+
+return(Deck)
   
 }
-Card_Values &lt;- data.frame(cbind(c(2,3,4,5,6,7,8,9,10,&quot;J&quot;,&quot;Q&quot;,&quot;K&quot;,&quot;A&quot;),c(1:13))) %&gt;% 
-  rename(., Value = X2, Number = X1) %&gt;% 
-  mutate(., Value = as.numeric(Value))
 
-Suits&lt;-c(&quot;S&quot;,&quot;H&quot;,&quot;D&quot;,&quot;C&quot;) #Spade, Hearts, Diamond, Clubs
-levels(Suits) &lt;- c(1,2,3,4)
-
-Deck &lt;- expand_grid(Card_Values, Suits) %&gt;% 
-  mutate(., Card = paste(Number, Suits, sep=&quot;&quot;))
-
-# Deck &lt;-
-#   cross_df(Card_Values$Number, Suits) %&gt;% 
-#   sapply(., rbind) %&gt;%  
-#   as_tibble()
-# 
-# DeckC &lt;- map(Deck, 1) %&gt;% unlist
-# DeckS &lt;- map(Deck, 2) %&gt;% unlist
-# 
-# Deck &lt;- tibble(Number = DeckC, Suit = DeckS, Card = paste(DeckC, DeckS, sep = &quot;&quot;))  %&gt;% left_join(., Card_Values, by = c(&quot;Number&quot; = &quot;Number&quot;))
-# attributes(Deck$Number) &lt;- NULL
-# attributes(Deck$Suit) &lt;- NULL
-# 
-# rm(DeckC, DeckS)
-
-print(Deck)
+Deck &lt;- BuildDeck(l1,l2,l3)
 
 save(Deck, file = &quot;./Backup/Deck&quot;)
 
-}</code></pre>
+}
+
+print(Deck)</code></pre>
+<pre><code>## # A tibble: 52 x 4
+##    Number Value Suit  Card 
+##    &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+##  1 2          1 S     2S   
+##  2 2          1 H     2H   
+##  3 2          1 D     2D   
+##  4 2          1 C     2C   
+##  5 3          2 S     3S   
+##  6 3          2 H     3H   
+##  7 3          2 D     3D   
+##  8 3          2 C     3C   
+##  9 4          3 S     4S   
+## 10 4          3 H     4H   
+## # ... with 42 more rows</code></pre>
 </div>
 <div id="hand-picker" class="section level1">
 <h1>Hand Picker</h1>
 <p>The Hand Select.R script identifies the hand you have. We’ll rely on
 the Holdem package for dealing, simulation, and other aspects of texas
 holdem. We’ll need to convert between the holdem package and modeler
-notation.</p>
+notation. Maybe for a future update we generate the hands ourselves and
+remove dependancies on the holdem package.</p>
 <pre class="r"><code>#We need to initialize &quot;Deck&quot; element before this function can work. Or should we have Deck be an existing object that is created in the function?
 
-Hand &lt;- function(x){
-  Hand &lt;- tibble(Card = c(&quot;JS&quot;, &quot;10C&quot;, &quot;10D&quot; , &quot;6S&quot;, &quot;AH&quot; , &quot;7S&quot;, &quot;8S&quot;)) %&gt;%
-  left_join(., Deck)
-}
+# Hand &lt;- function(x){
+#   Hand &lt;- tibble(Card = c(&quot;JS&quot;, &quot;10C&quot;, &quot;10D&quot; , &quot;6S&quot;, &quot;AH&quot; , &quot;7S&quot;, &quot;8S&quot;)) %&gt;%
+#   left_join(., Deck)
+# }
 
 Hand &lt;- tibble(Card = c(&quot;JS&quot;, &quot;10C&quot;, &quot;10D&quot; , &quot;6S&quot;, &quot;AH&quot; , &quot;7S&quot;, &quot;8S&quot;)) %&gt;%
   left_join(., Deck)</code></pre>
 <pre><code>## Joining, by = &quot;Card&quot;</code></pre>
-<pre class="r"><code>d &lt;- deal1(9)
-Value &lt;- c(d$plnum1[1,1], d$plnum1[1,2], d$brdnum1)-1
-Suit &lt;- c(d$plsuit1[1,1], d$plsuit1[1,2], d$brdsuit1)
-
-# c(d$plnum1[1:nrow(d$plnum1),1], d$plnum1[1:nrow(d$plnum1),2], d$brdnum1)</code></pre>
+<pre class="r"><code>DealFromHoldem &lt;- function(numpl = 1){
+  # Deal to n (numpl) players. Max is 23
+  
+  Phands &lt;- list()
+  d &lt;- deal1(numpl)
+  
+  # Converting to Values and Suit
+  for(i in 1:numpl){
+  Value &lt;- c(d$plnum1[i,1], d$plnum1[i,2], d$brdnum1)-1
+  Suit &lt;- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %&gt;% Deck$Suit[.]
+  
+  x &lt;- as_tibble(cbind(Value, Suit)) %&gt;% 
+    mutate(., Value = as.double(Value)) %&gt;% 
+    left_join(., Deck, by = c(&quot;Value&quot;, &quot;Suit&quot;))
+  
+  Phands &lt;- append(Phands, list(x))
+  }
+  
+  # returning Hands of each player sorted by list.
+  return(Phands)
+}</code></pre>
 </div>
 <div id="hand-score-evaluation" class="section level1">
 <h1>Hand Score Evaluation</h1>
@@ -535,7 +566,6 @@ kickers</p>
 # High Card
 
 
-# Pair
 
 FindHand(Hand)</code></pre>
 <pre><code>## [[1]]
@@ -543,13 +573,14 @@ FindHand(Hand)</code></pre>
 ## 
 ## [[2]]
 ## # A tibble: 2 x 4
-##   Card  Number Suit  Value
-##   &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;dbl&gt;
-## 1 10C   10     C         9
-## 2 10D   10     D         9</code></pre>
+##   Card  Number Value Suit 
+##   &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;
+## 1 10C   10         9 C    
+## 2 10D   10         9 D</code></pre>
 </div>
-<div id="future-possible-hands" class="section level1">
-<h1>Future Possible Hands</h1>
+<div id="future-possible-hands-expecation" class="section level1">
+<h1>Future Possible Hands (Expecation)</h1>
+<pre class="r"><code>source(&quot;Hand Predict.R&quot;)</code></pre>
 </div>
 <div id="bets-weight-modeler" class="section level1">
 <h1>Bets &amp; Weight Modeler</h1>
