@@ -91,17 +91,18 @@ return(list(Pass = x, y))
 FullHouse <- function(Hand){
 
 temp <- Hand
-test1 <- c(table(temp$Value) == 3)
-test2 <- c(table(temp$Value) == 2)
+temp <- temp[order(-temp$Value),]
+test1 <- c(table(temp$Value) >= 3) # Find sets of 3 or more
+test2 <- c(table(temp$Value) >= 2) # Find sets of 2 more more
 
-x <- reduce(test1, `|`) && reduce(test2, `|`) #This statement must be true or it is not FH
+x <- sum(test1) >=1 && sum(test2) >=2 #This statement must be true or it is not FH
 
 temp$A <- test1[match(temp$Value, names(test1))]
 temp$B <- test2[match(temp$Value, names(test2))]
 
 y <- temp[temp$A | temp$B, 1:4]
 
-return(list(Pass = x, y))
+return(list(Pass = x, y[1:5,]))
 }
 # Flush
 Flush <- function(Hand){
@@ -159,14 +160,15 @@ return(list(Pass = x, y))
 # TWo pair
 TwoPair <- function(Hand){
 temp <- Hand
+temp <- temp[order(-temp$Value),]
 test <- c(table(temp$Value) >= 2)
 
-x <- reduce(test, `|`) && sum(test) == 2 #Must Pass test #Must pass count
+x <- reduce(test, `|`) && sum(test) >= 2 #Must Pass test #Must pass count
 
 temp$A <- test[match(temp$Value, names(test))]
 y <- temp[temp$A, 1:4] #Return Two Pair
 
-return(list(Pass = x, y))
+return(list(Pass = x, y[1:4,]))
 }
 # One pair
 

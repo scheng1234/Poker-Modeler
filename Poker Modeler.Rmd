@@ -93,7 +93,26 @@ DealFromHoldem <- function(numpl = 1){
   # Converting to Values and Suit
   for(i in 1:numpl){
   Value <- c(d$plnum1[i,1], d$plnum1[i,2], d$brdnum1)-1
-  Suit <- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %>% Deck$Suit[.]
+  Suit <- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %>% unique(Deck$Suit)[.]
+  
+  x <- as_tibble(cbind(Value, Suit)) %>% 
+    mutate(., Value = as.double(Value)) %>% 
+    left_join(., Deck, by = c("Value", "Suit"))
+  
+  Phands <- append(Phands, list(x))
+  }
+  
+  # returning Hands of each player sorted by list.
+  return(Phands)
+}
+
+ConvertFromHoldem <- function(d){
+  Phands <- list()
+  
+  # Converting to Values and Suit
+  for(i in 1:nrow(d$plnum1)){
+  Value <- c(d$plnum1[i,1], d$plnum1[i,2], d$brdnum1)-1
+  Suit <- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %>% unique(Deck$Suit)[.]
   
   x <- as_tibble(cbind(Value, Suit)) %>% 
     mutate(., Value = as.double(Value)) %>% 
@@ -208,7 +227,9 @@ FindHand(Hand)
 
 ```{r}
 
-source("Hand Predict.R")
+# source("Hand Predict.R")
+
+wiki2 = "https://en.wikipedia.org/wiki/Texas_hold_%27em_starting_hands"
 
 ```
 

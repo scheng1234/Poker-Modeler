@@ -13,20 +13,30 @@ source("Libraries.R")
 source("Hand Select.R")
 source("Total Hand Value.R")
 
-set.seed(18610)
 Hand <- DealFromHoldem()[[1]]
 
+plan(multisession, workers = length(availableWorkers()) -2)
 
 # Maximal Hand Value ------------------------------------------------------
 
-# We will need to determine whether we are on the "pre-flop, flop, or turn"
+# We will need to determine whether we are on the "pre-flop, flop, or turn." The
+# In the case of only 2 players, the number of possible hands will be
+# choose(Deck - 2x Play
 
 
+# Post flop, we have choose(Deck - 2x Players - 3, 2) = 990
+# Post turn, we have choose(Deck - 2x Players - 4, 1) = 44
 # Pre Flop
+
 Hand[1:2,]
+
+# Map every possible pair and determine W/L using simulation method?
+
 
 # Flop
 Hand[1:5,]
+
+
 
 # Turn
 Hand[1:6,]
@@ -34,3 +44,78 @@ Hand[1:6,]
 # Expected Hand value -----------------------------------------------------
 
 # We will want to calculate the expected hand strength given "flop, river, or turn"
+
+
+# We will need to determine whether we are on the "pre-flop, flop, or turn." The
+# In the case of only 2 players, the number of possible hands will be
+# choose(Deck - 2x Players, 5) = 1,712,304. Possible number of starting pairs is
+# choose(Deck,2) = 1326
+
+# Post flop, we have choose(Deck - 2x Players - 3, 2) = 990
+# Post turn, we have choose(Deck - 2x Players - 4, 1) = 44
+
+# Pre Flop
+Hand[1:2,]
+
+# Map every possible pair and determine W/L using simulation method?
+
+# Not sure how to get rid of the different combinations. Right now it is
+# computing permutations
+
+# AllHands <-
+#   expand_grid(Deck$Card, Deck$Card) %>% 
+#   transmute(., rename(., c("H1" = names(.)[1], "H2" = names(.)[2]))) %>% 
+#   filter(!(H1 == H2)) %>% 
+#   mutate(., S1 = str_c(H1, H2), S2 = str_c(H2,H1))
+
+
+# The below code iterates through the entire Deck and generates all possible combo's
+x <- Deck$Card
+PreFlopHands <- tibble(i = character(), x = character())
+
+for( i in x){
+  x <- x[-match(i, x)]
+  y <- expand_grid(i, x)
+  PreFlopHands <- add_row(PreFlopHands, y)
+  
+}
+
+
+# Simulate 1000 Hands
+PreFlopSim <- tibble(y = numeric(), hand = character(), x = list())
+
+system.time(
+for( i in 1:5000){
+ x<-DealFromHoldem(1)
+ y<-TotalValue(x[[1]])[[1]]
+ hand <- FindHand(x[[1]])
+ PreFlopSim <- add_row(PreFlopSim, y = y,hand = hand[[1]] ,x = x)
+}
+)
+
+# Saving down the first iteration.
+
+saveRDS(PreFlopSim, file = "./Backup/PreFlopSim1") 
+
+# Currently takes ~200 seconds to simulate 1000 hands.
+# Assuming we want each hand simulated x100, we will need 1326*30s = 39780s, or
+# roughly 7-11 hours. Computationally unreasonable to do on the fly.
+
+# Solution: 
+# 1) run it anyways
+# 2) Optimize functions and rerun
+# 3) Parallel compute <- Opted
+# 4) Leverage Holdem package somehow? 
+
+m <- PreFlopSim %>% 
+  group_by(., hand) %>% 
+  summarise(.,min = min(y), max = max(y)) %>% 
+  # Quick check on the bounds of our data.
+print(m)
+# Flop
+Hand[1:5,]
+
+
+
+# Turn
+Hand[1:6,]

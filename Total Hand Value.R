@@ -40,7 +40,7 @@ TotalValue <- function(Hand){
   temp <- Hand
   a <- FindHand(temp)
   
-HandVal <-  if( a[[1]] == "Royal Flush" || a[[1]]== "Straight Flush"){
+HandVal <-  if( a[[1]] == "Royal Flush" || a[[1]] == "Straight Flush"){
     sum(a[[2]]$Value) + hand_rank^6 + flush_bonus
   }else if(a[[1]] == "Four of a Kind"){
     sum(a[[2]]$Value) + hand_rank^6
@@ -64,10 +64,13 @@ HandVal <-  if( a[[1]] == "Royal Flush" || a[[1]]== "Straight Flush"){
   }
   
 
-b <- anti_join(temp, a[[2]]) %>% arrange(., desc(Value))
+b <-
+  anti_join(temp, a[[2]], by = c("Card", "Number", "Suit", "Value")) %>% 
+  arrange(., desc(Value))
 b <- b[1:(5-nrow(a[[2]])), ]
 
-Residuals <- sum(b$Value)
+Residuals <- sum(b$Value/((13)^(row_number(b$Value))))
+
 ab <- rbind(a[[2]],b)
  
   return(list(HandVal + Residuals, ab))

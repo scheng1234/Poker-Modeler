@@ -7,6 +7,7 @@ library(selectr)
 library(xml2)
 library(magrittr)
 library(lubridate)
+library("furrr")
 
 
 # Optionals and Notes -----------------------------------------------------

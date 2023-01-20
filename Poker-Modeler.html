@@ -420,7 +420,7 @@ save(Deck, file = &quot;./Backup/Deck&quot;)
 }
 
 print(Deck)</code></pre>
-<pre><code>## # A tibble: 52 x 4
+<pre><code>## # A tibble: 52 × 4
 ##    Number Value Suit  Card 
 ##    &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
 ##  1 2          1 S     2S   
@@ -433,7 +433,7 @@ print(Deck)</code></pre>
 ##  8 3          2 C     3C   
 ##  9 4          3 S     4S   
 ## 10 4          3 H     4H   
-## # ... with 42 more rows</code></pre>
+## # … with 42 more rows</code></pre>
 </div>
 <div id="hand-picker" class="section level1">
 <h1>Hand Picker</h1>
@@ -461,7 +461,26 @@ Hand &lt;- tibble(Card = c(&quot;JS&quot;, &quot;10C&quot;, &quot;10D&quot; , &q
   # Converting to Values and Suit
   for(i in 1:numpl){
   Value &lt;- c(d$plnum1[i,1], d$plnum1[i,2], d$brdnum1)-1
-  Suit &lt;- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %&gt;% Deck$Suit[.]
+  Suit &lt;- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %&gt;% unique(Deck$Suit)[.]
+  
+  x &lt;- as_tibble(cbind(Value, Suit)) %&gt;% 
+    mutate(., Value = as.double(Value)) %&gt;% 
+    left_join(., Deck, by = c(&quot;Value&quot;, &quot;Suit&quot;))
+  
+  Phands &lt;- append(Phands, list(x))
+  }
+  
+  # returning Hands of each player sorted by list.
+  return(Phands)
+}
+
+ConvertFromHoldem &lt;- function(d){
+  Phands &lt;- list()
+  
+  # Converting to Values and Suit
+  for(i in 1:nrow(d$plnum1)){
+  Value &lt;- c(d$plnum1[i,1], d$plnum1[i,2], d$brdnum1)-1
+  Suit &lt;- c(d$plsuit1[i,1], d$plsuit1[i,2], d$brdsuit1) %&gt;% unique(Deck$Suit)[.]
   
   x &lt;- as_tibble(cbind(Value, Suit)) %&gt;% 
     mutate(., Value = as.double(Value)) %&gt;% 
@@ -500,20 +519,22 @@ SevenCardFrequency[,-6]
 }</code></pre>
 <pre><code>## 
  en.wikipedia.org</code></pre>
-<pre><code>## # A tibble: 11 x 5
-##    Hand                         Frequency  Probability Cumulative `Odds against`
-##    &lt;chr&gt;                        &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;         
-##  1 Royal flush                  4,324      0.0032%     0.0032%    30,939 : 1    
-##  2 Straight flush (excluding r~ 37,260     0.0279%     0.0311%    3,589.6 : 1   
-##  3 Four of a kind               224,848    0.168%      0.199%     594 : 1       
-##  4 Full house                   3,473,184  2.60%       2.80%      37.5 : 1      
-##  5 Flush (excluding royal flus~ 4,047,644  3.03%       5.82%      32.1 : 1      
-##  6 Straight (excluding royal f~ 6,180,020  4.62%       10.4%      20.6 : 1      
-##  7 Three of a kind              6,461,620  4.83%       15.3%      19.7 : 1      
-##  8 Two pair                     31,433,400 23.5%       38.8%      3.26 : 1      
-##  9 One pair                     58,627,800 43.8%       82.6%      1.28 : 1      
-## 10 No pair / High card          23,294,460 17.4%       100%       4.74 : 1      
-## 11 Total                        133,784,5~ 100%        ---        0 : 1</code></pre>
+<pre><code>## # A tibble: 11 × 5
+##    Hand                                          Frequ…¹ Proba…² Cumul…³ Odds …⁴
+##    &lt;chr&gt;                                         &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  
+##  1 Royal flush                                   4,324   0.0032% 0.0032% 30,939…
+##  2 Straight flush (excluding royal flush)        37,260  0.0279% 0.0311% 3,589.…
+##  3 Four of a kind                                224,848 0.168%  0.199%  594 : 1
+##  4 Full house                                    3,473,… 2.60%   2.80%   37.5 :…
+##  5 Flush (excluding royal flush and straight fl… 4,047,… 3.03%   5.82%   32.1 :…
+##  6 Straight (excluding royal flush and straight… 6,180,… 4.62%   10.4%   20.6 :…
+##  7 Three of a kind                               6,461,… 4.83%   15.3%   19.7 :…
+##  8 Two pair                                      31,433… 23.5%   38.8%   3.26 :…
+##  9 One pair                                      58,627… 43.8%   82.6%   1.28 :…
+## 10 No pair / High card                           23,294… 17.4%   100%    4.74 :…
+## 11 Total                                         133,78… 100%    ---     0 : 1  
+## # … with abbreviated variable names ¹​Frequency, ²​Probability, ³​Cumulative,
+## #   ⁴​`Odds against`</code></pre>
 <p>Figuring out a way to have card_values * combo = Total Value (TV).
 Possible to update the offset term to the minimum of the prior hand.</p>
 <p>Let n represent card value and c represent the minimum offset so that
@@ -572,7 +593,7 @@ FindHand(Hand)</code></pre>
 ## [1] &quot;One Pair&quot;
 ## 
 ## [[2]]
-## # A tibble: 2 x 4
+## # A tibble: 2 × 4
 ##   Card  Number Value Suit 
 ##   &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;
 ## 1 10C   10         9 C    
@@ -580,7 +601,9 @@ FindHand(Hand)</code></pre>
 </div>
 <div id="future-possible-hands-expecation" class="section level1">
 <h1>Future Possible Hands (Expecation)</h1>
-<pre class="r"><code>source(&quot;Hand Predict.R&quot;)</code></pre>
+<pre class="r"><code># source(&quot;Hand Predict.R&quot;)
+
+wiki2 = &quot;https://en.wikipedia.org/wiki/Texas_hold_%27em_starting_hands&quot;</code></pre>
 </div>
 <div id="bets-weight-modeler" class="section level1">
 <h1>Bets &amp; Weight Modeler</h1>
