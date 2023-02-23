@@ -85,13 +85,19 @@ for( i in x){
 PreFlopSim <- tibble(y = numeric(), hand = character(), x = list())
 
 system.time(
-for( i in 1:5000){
+for( i in 1:500){
  x<-DealFromHoldem(1)
  y<-TotalValue(x[[1]])[[1]]
  hand <- FindHand(x[[1]])
- PreFlopSim <- add_row(PreFlopSim, y = y,hand = hand[[1]] ,x = x)
+ PreFlopSim <- add_row(PreFlopSim, y = y,hand = hand[[1]] ,x = list(x))
+ print(i)
 }
 )
+
+# These times seem independent of the function I use and more about how fast my
+# computer runs. I think the next option is to use map or apply function and not for loop.
+# 8.22, 8.46, 8.03, 7.97, 8.21 
+# 7.97, 8.28, 8.31. 8.69, 8.46
 
 # Saving down the first iteration.
 
@@ -101,21 +107,40 @@ saveRDS(PreFlopSim, file = "./Backup/PreFlopSim1")
 # Assuming we want each hand simulated x100, we will need 1326*30s = 39780s, or
 # roughly 7-11 hours. Computationally unreasonable to do on the fly.
 
+# Need to look into whether vectorizing the for loop would make it faster?
+
 # Solution: 
 # 1) run it anyways
-# 2) Optimize functions and rerun
-# 3) Parallel compute <- Opted
-# 4) Leverage Holdem package somehow? 
+# 2) Optimize functions and rerun: Potentially use the sample function and then re-map to hands. 
+# 3) Parallel compute
+# 4) Leverage Holdem package somehow?
+
 
 m <- PreFlopSim %>% 
   group_by(., hand) %>% 
   summarise(.,min = min(y), max = max(y)) %>% 
+  arrange(., min)
   # Quick check on the bounds of our data.
-print(m)
-# Flop
+
+
+# two hand extract PR, need to map the first two values of PreFlopSim to
+# PreFlopHands.
+
+
+# PreFlopSim[[3]][[n]][c(1,2),]
+x <- PreFlopSim[[3]]
+x <-lapply(x, slice, c(1,2))
+
+
+
+# Flop --------------------------------------------------------------------
+
 Hand[1:5,]
 
 
 
-# Turn
+
+# Turn --------------------------------------------------------------------
+
 Hand[1:6,]
+

@@ -55,15 +55,31 @@ HandVal <-  if( a[[1]] == "Royal Flush" || a[[1]] == "Straight Flush"){
     sum(a[[2]]$Value) + hand_rank^4
   }else if(a[[1]] == "Three of a Kind"){
     sum(a[[2]]$Value) + hand_rank^3
-  }else if(a[[1]] == "Two Pair"){  
+  }else if(a[[1]] == "Two Pair"){
     sum(3*max(a[[2]]$Value), 0.25*min(a[[2]]$Value), hand_rank^2)
   }else if(a[[1]] == "One Pair"){
     sum(2*a[[2]]$Value,13)
   }else{
     a[[2]]$Value
   }
-  
 
+# HandVal <-  case_when( a[[1]] == "Royal Flush" || a[[1]] == "Straight Flush" ~
+#   sum(a[[2]]$Value) + hand_rank^6 + flush_bonus, 
+#   a[[1]] == "Four of a Kind" ~ sum(a[[2]]$Value) + hand_rank^6,
+#   a[[1]] == "Full House" ~
+#   sum(a[[2]]$Value[a[[2]]$Value == names(table(a[[2]]$Value)[table(a[[2]]$Value) ==
+#                                                                  2])],
+#         13 * a[[2]]$Value[a[[2]]$Value == names(table(a[[2]]$Value)[table(a[[2]]$Value) ==
+#                                                                       3])]) + hand_rank^5,
+#   a[[1]] == "Flush" ~ sum(a[[2]]$Value * c(13^2,13,1,13^-1,13^-2),hand_rank^4,flush_bonus),
+#   a[[1]] == "Straight" ~ sum(a[[2]]$Value) + hand_rank^4,
+#   a[[1]] == "Three of a Kind" ~ sum(a[[2]]$Value) + hand_rank^3,
+#   a[[1]] == "Two Pair" ~ sum(3*max(a[[2]]$Value), 0.25*min(a[[2]]$Value), hand_rank^2),
+#   a[[1]] == "One Pair" ~ sum(2*a[[2]]$Value,13),
+#   TRUE ~ a[[2]]$Value[1]
+# )
+#   
+  
 b <-
   anti_join(temp, a[[2]], by = c("Card", "Number", "Suit", "Value")) %>% 
   arrange(., desc(Value))
